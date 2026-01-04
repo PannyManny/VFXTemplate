@@ -111,7 +111,7 @@ void volumeVisuals( int id, vec3 localPos, out vec3 color, out float baseOpacity
 
         // color
         float innerDrop = 5;
-        float outerDrop = 25;
+        float outerDrop = 35;
 
         vec3 hsv = vec3(0.1, 0.2, 0.0);
         float normRad = radius / (maxRadius * 1.25);
@@ -120,11 +120,11 @@ void volumeVisuals( int id, vec3 localPos, out vec3 color, out float baseOpacity
         hsv.y += (0.8 * normRad) * 2;
 
         float tFast = smoothstep(innerDrop, outerDrop, radius);
-        float zFast = mix(3.0, 1.0, tFast);
+        float zFast = mix(5.0, 1.0, tFast);
         float zSlow = (0.82 * normRad) * 2;
         hsv.z = zFast - zSlow;
 
-        vec3 colorA = hsv2rgb(hsv);
+        vec3 colorA = n * hsv2rgb(hsv);
 
         // opacity
         float fadeStart = maxRadius / 1.75;
