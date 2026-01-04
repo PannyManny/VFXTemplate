@@ -1,5 +1,7 @@
 package dev.panimal.shadermaxxing.client.rendering;
 
+import dev.panimal.shadermaxxing.Shadermaxxing;
+import net.minecraft.client.texture.AbstractTexture;
 import org.ladysnake.satin.api.event.PostWorldRenderCallback;
 import org.ladysnake.satin.api.experimental.ReadableDepthFramebuffer;
 import org.ladysnake.satin.api.managed.ManagedShaderEffect;
@@ -26,6 +28,11 @@ public abstract class AbstractEventShader implements PostWorldRenderCallback, Cl
     private final Uniform3f uniformCameraPosition = SHADER.findUniform3f("CameraPosition");
     private final Uniform1f uniformiTime = SHADER.findUniform1f("iTime");
     protected final Uniform3f uniformBlockPosition = SHADER.findUniform3f("BlockPosition");
+    protected AbstractTexture noiseTexP18;
+
+    public void setNoiseTexture(AbstractTexture texture) {
+        this.noiseTexP18 = texture;
+    }
 
     protected int ticks = 0;
 
@@ -43,12 +50,20 @@ public abstract class AbstractEventShader implements PostWorldRenderCallback, Cl
 
     @Override
     public void onWorldRendered(Camera camera, float tickDelta) {
-        if (shouldRender()) {
-            uniformInverseTransformMatrix.set(GlMatrices.getInverseTransformMatrix(projectionMatrix));
-            uniformCameraPosition.set(camera.getPos().toVector3f());
-            uniformiTime.set((ticks + tickDelta)/20f);
+        if (!shouldRender()) return;
 
-            SHADER.render(tickDelta);
+        if (noiseTexP18 == null) {
+            Shadermaxxing.LOGGER.error("NoiseTex is null at render time!");
+            return;
         }
+
+        uniformInverseTransformMatrix.set(
+                GlMatrices.getInverseTransformMatrix(projectionMatrix)
+        );
+        uniformCameraPosition.set(camera.getPos().toVector3f());
+        uniformiTime.set((ticks + tickDelta) / 20f);
+
+        SHADER.setSamplerUniform("noiseTexP18", noiseTexP18);
+        SHADER.render(tickDelta);
     }
 }
