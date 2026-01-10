@@ -54,12 +54,14 @@ float sdRoundedCylinder( vec3 p, float ra, float rb, float h )
 {
     float noise = capNoise(p);
     float noiseStrength = 1.5;
+
     float r = length(p.xz);
     float t = smoothstep(0.0, ra, r);
     float heightScale = 1.0 - t;
     float taperedHeight = h * heightScale;
     float noisyHeight = taperedHeight + (noise) * noiseStrength;
     vec2 d = vec2( length(p.xz)-ra+rb, abs(p.y) - (noisyHeight) + rb );
+
     return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rb;
 }
 
@@ -67,8 +69,8 @@ float sdSphere( vec3 p, float s )
 {
     return length(p)-s;
 }
-
 //
+
 float sdf[VOL_COUNT];
 vec3 localPos[VOL_COUNT];
 
@@ -85,8 +87,8 @@ void computeSDFs( vec3 p )
     center2.xz *= Rotate(iTime / 17.0);
 
     // Size/Dimensions
-    sdf[VOL_1] = sdSphere(center1, 12.0);
-    sdf[VOL_2] = sdRoundedCylinder(center2, 50.0, 1.0, 4.0);
+    sdf[VOL_1] = sdSphere(center1, 14.0);
+    sdf[VOL_2] = sdRoundedCylinder(center2, 80.0, 1.0, 4.0);
 
     localPos[VOL_1] = center1;
     localPos[VOL_2] = center2;
@@ -106,31 +108,31 @@ void volumeVisuals( int id, vec3 localPos, out vec3 color, out float baseOpacity
     if (id == VOL_2)
     {
         float radius = length(localPos.xz);
-        float maxRadius = 50.0;
-        float n = texture(noiseTexP18, localPos.xz * 0.05).r;
+        float maxRadius = 100.0;
+        float n = texture(noiseTexP18, localPos.xz * 0.1).r;
 
         // color
-        float innerDrop = 5;
-        float outerDrop = 35;
+        float innerDrop = maxRadius * 0.1;
+        float outerDrop = maxRadius * 1.2;
 
         vec3 hsv = vec3(0.1, 0.2, 0.0);
-        float normRad = radius / (maxRadius * 1.25);
+        float normRad = (radius) / (maxRadius * 1.25);
 
-        hsv.x -= (0.05 * normRad) * 4;
+        hsv.x -= (0.05 * normRad) * 2.5;
+        if (hsv.x > 0.16) { hsv.x += (0.05 * normRad) * 2.5; }
         hsv.y += (0.8 * normRad) * 2;
-
         float tFast = smoothstep(innerDrop, outerDrop, radius);
-        float zFast = mix(5.0, 1.0, tFast);
-        float zSlow = (0.82 * normRad) * 2;
+        float zFast = mix(5, 1, tFast);
+        float zSlow = (0.82 * normRad) * 8.5;
         hsv.z = zFast - zSlow;
 
         vec3 colorA = n * hsv2rgb(hsv);
 
         // opacity
         float fadeStart = maxRadius / 1.75;
-        float fadeEnd = maxRadius;
+        float fadeEnd = maxRadius / 1.15;
         float edgeFade = 1.0 - smoothstep(fadeStart, fadeEnd, radius);
-        float opacityA = n * edgeFade;
+        float opacityA = n * (edgeFade * 2);
 
         color = colorA;
         baseOpacity = opacityA;
@@ -193,6 +195,23 @@ vec4 raymarchVolume( vec3 ro, vec3 rd )
         float rawStep = clamp(closestSDF * 0.6, 0.06, 0.6);
         float smoothen = smoothstep(0.0, 0.4, closestSDF);
         float stepSize = mix(0.06, rawStep, smoothen);
+
+        vec3 toBH = -p;
+        float r = length(toBH);
+        vec3 dirToBH = toBH / r;
+
+        float rs = 10.0;
+        float photonSphere = rs * 1.5;
+
+        float x = photonSphere / max(r, rs);
+        float bend = mix(
+        pow(x, 1.5),
+        pow(x, 4.5),
+        smoothstep(0.2, 4.8, x)
+        );
+
+        rd += dirToBH * bend * 0.0055 * stepSize;
+        rd = normalize(rd);
 
         for (int id = 0; id < VOL_COUNT; id++)
         {
