@@ -1,0 +1,17 @@
+{
+  "targets": [
+    "cube"
+  ],
+  "passes": [
+    {
+      "name": "shadermaxxing:cube",
+      "intarget": "minecraft:main",
+      "outtarget": "cube"
+    },
+    {
+      "name": "blit",
+      "intarget": "cube",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}
