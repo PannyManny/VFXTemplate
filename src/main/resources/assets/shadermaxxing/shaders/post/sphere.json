@@ -1,0 +1,17 @@
+{
+  "targets": [
+    "sphere"
+  ],
+  "passes": [
+    {
+      "name": "shadermaxxing:sphere",
+      "intarget": "minecraft:main",
+      "outtarget": "sphere"
+    },
+    {
+      "name": "blit",
+      "intarget": "sphere",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}

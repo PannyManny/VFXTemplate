@@ -1,7 +1,10 @@
 package dev.panimal.shadermaxxing.client;
 
 import dev.panimal.shadermaxxing.Shadermaxxing;
-import dev.panimal.shadermaxxing.client.rendering.EventShader;
+import dev.panimal.shadermaxxing.client.rendering.AbstractEventShader;
+import dev.panimal.shadermaxxing.client.rendering.CubeShader;
+import dev.panimal.shadermaxxing.client.rendering.SphereShader;
+import dev.panimal.shadermaxxing.client.rendering.ShaderRegistry;
 import dev.panimal.shadermaxxing.network.VFXSyncS2CPacket;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -33,20 +36,29 @@ public class ShadermaxxingClient implements ClientModInitializer {
                     noiseTexP18
             );
 
-            EventShader.INSTANCE.setNoiseTexture(noiseTexP18);
+            CubeShader.INSTANCE.setNoiseTexture(noiseTexP18);
         });
 
-
         ClientPlayNetworking.registerGlobalReceiver(VFXSyncS2CPacket.ID, (payload, context) -> {
+            String shaderName = payload.shaderName();
             var pos = payload.pos();
 
             context.client().execute(() -> {
-                EventShader.INSTANCE.blockPosition = pos.toCenterPos().toVector3f();
-                EventShader.INSTANCE.dimension = context.client().world.getRegistryKey();
+                AbstractEventShader shader = ShaderRegistry.get(shaderName);
+
+                if (shader != null) {
+                    shader.activate(pos, context.client().world);
+                } else {
+                    LOGGER.warn("Unknown shader: " + shaderName);
+                }
             });
         });
 
-        ClientTickEvents.END_CLIENT_TICK.register(EventShader.INSTANCE);
-        org.ladysnake.satin.api.event.PostWorldRenderCallback.EVENT.register(EventShader.INSTANCE);
+        // here
+        ClientTickEvents.END_CLIENT_TICK.register(CubeShader.INSTANCE);
+        ClientTickEvents.END_CLIENT_TICK.register(SphereShader.INSTANCE);
+
+        org.ladysnake.satin.api.event.PostWorldRenderCallback.EVENT.register(CubeShader.INSTANCE);
+        org.ladysnake.satin.api.event.PostWorldRenderCallback.EVENT.register(SphereShader.INSTANCE);
     }
 }

@@ -5,16 +5,30 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
-public class EventShader extends AbstractEventShader {
-    public static final EventShader INSTANCE = new EventShader();
+public class CubeShader extends AbstractEventShader {
+    public static final CubeShader INSTANCE = new CubeShader();
 
     public Vector3f blockPosition = null;
     public RegistryKey<World> dimension = null;
 
-    private EventShader() {}
+    private CubeShader() {}
+
+    @Override
+    public void activate(BlockPos pos, World world) {
+        this.blockPosition = pos.toCenterPos().toVector3f();
+        this.dimension = world.getRegistryKey();
+        this.ticks = 0;
+    }
+
+    @Override
+    public void deactivate() {
+        this.blockPosition = null;
+        this.dimension = null;
+    }
 
     @Override
     protected Identifier getIdentifier() {
@@ -29,7 +43,7 @@ public class EventShader extends AbstractEventShader {
 
     @Override
     public void onEndTick(MinecraftClient minecraftClient) {
-        if (ticks >= 1600 || minecraftClient.world == null || minecraftClient.world.getRegistryKey() != dimension) {
+        if (ticks >= 16000 || minecraftClient.world == null || minecraftClient.world.getRegistryKey() != dimension) {
             blockPosition = null;
             dimension = null;
         }

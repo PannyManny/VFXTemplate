@@ -2,6 +2,8 @@ package dev.panimal.shadermaxxing.client.rendering;
 
 import dev.panimal.shadermaxxing.Shadermaxxing;
 import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.ladysnake.satin.api.event.PostWorldRenderCallback;
 import org.ladysnake.satin.api.experimental.ReadableDepthFramebuffer;
 import org.ladysnake.satin.api.managed.ManagedShaderEffect;
@@ -38,6 +40,9 @@ public abstract class AbstractEventShader implements PostWorldRenderCallback, Cl
 
     protected abstract Identifier getIdentifier();
     protected abstract boolean shouldRender();
+
+    public abstract void activate(BlockPos pos, World world);
+    public abstract void deactivate();
 
     @Override
     public void onEndTick(MinecraftClient minecraftClient) {
