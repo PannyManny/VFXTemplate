@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import org.joml.Vector3f;
 
 public class CubeShader extends AbstractEventShader {
+    // change here
     public static final CubeShader INSTANCE = new CubeShader();
 
     public Vector3f blockPosition = null;

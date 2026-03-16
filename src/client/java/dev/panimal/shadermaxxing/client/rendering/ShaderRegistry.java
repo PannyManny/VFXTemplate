@@ -19,6 +19,7 @@ public class ShaderRegistry {
     }
 
     public static void init() {
+        // add more vfx here
         register("cube", CubeShader.INSTANCE);
         register("sphere", SphereShader.INSTANCE);
     }

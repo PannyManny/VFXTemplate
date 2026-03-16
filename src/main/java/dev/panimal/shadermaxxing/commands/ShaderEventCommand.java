@@ -24,36 +24,37 @@ public final class ShaderEventCommand {
                         .requires(source -> source.hasPermissionLevel(2))
                         .then(CommandManager.argument("shader_name", StringArgumentType.word())
                                 .suggests((ctx, builder) -> {
+                                    // add more vfx here
                                     return builder.suggest("cube")
-                                            .suggest("example")
+                                            .suggest("sphere")
                                             .buildFuture();
-                                }))
-                                .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-                                    .executes(ctx -> {
-                                        String shaderName = StringArgumentType.getString(ctx, "shader_name");
-                                        BlockPos pos = BlockPosArgumentType.getBlockPos(ctx, "pos");
-
-                                        ServerCommandSource source = ctx.getSource();
-
-                                        source.getServer().execute(() -> {
-                                            Collection<ServerPlayerEntity> targets =
-                                                Optional.ofNullable(source.getEntity())
-                                                        .filter(ServerPlayerEntity.class::isInstance)
-                                                        .map(e -> ((ServerPlayerEntity) e).getWorld()
-                                                                .getPlayers().stream()
-                                                                .map(p -> (ServerPlayerEntity) p)
-                                                                .collect(Collectors.toList()))
-                                                        .orElseGet(() -> source.getServer()
-                                                                .getPlayerManager()
-                                                                .getPlayerList());
-
-                                        for (ServerPlayerEntity player : targets) {
-                                            ServerPlayNetworking.send(player, new VFXSyncS2CPacket(shaderName, pos));
-                                        }
-                                    });
-
-                                    return 1;
                                 })
+                                .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
+                                        .executes(ctx -> {
+                                            String shaderName = StringArgumentType.getString(ctx, "shader_name");
+                                            BlockPos pos = BlockPosArgumentType.getBlockPos(ctx, "pos");
+                                            ServerCommandSource source = ctx.getSource();
+
+                                            source.getServer().execute(() -> {
+                                                Collection<ServerPlayerEntity> targets =
+                                                        Optional.ofNullable(source.getEntity())
+                                                                .filter(ServerPlayerEntity.class::isInstance)
+                                                                .map(e -> ((ServerPlayerEntity) e).getWorld()
+                                                                        .getPlayers().stream()
+                                                                        .map(p -> (ServerPlayerEntity) p)
+                                                                        .collect(Collectors.toList()))
+                                                                .orElseGet(() -> source.getServer()
+                                                                        .getPlayerManager()
+                                                                        .getPlayerList());
+
+                                                for (ServerPlayerEntity player : targets) {
+                                                    ServerPlayNetworking.send(player, new VFXSyncS2CPacket(shaderName, pos));
+                                                }
+                                            });
+
+                                            return 1;
+                                        })
+                                )
                         )
         );
     }

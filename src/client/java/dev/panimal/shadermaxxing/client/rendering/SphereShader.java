@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import org.joml.Vector3f;
 
 public class SphereShader extends AbstractEventShader {
+    // change here
     public static final SphereShader INSTANCE = new SphereShader();
 
     public Vector3f blockPosition = null;
