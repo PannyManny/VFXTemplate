@@ -44,13 +44,13 @@ vec3 localPos[VOL_COUNT];
 void computeSDFs( vec3 p )
 {
     // Position
-    vec3 center1 = p - vec3(0.0, 10.0, 0.0); // x y z coordinates relative to command coords (will be inversed)
+    vec3 center1 = p - vec3(0.0, 0.0, 0.0); // x y z coordinates relative to command coords (will be inversed)
 
     // Movement
 
 
     // Size/Dimensions
-    sdf[VOL_1] = sdSphere(center1, 7.0);
+    sdf[VOL_1] = sdSphere(center1, 1.0);
 
     localPos[VOL_1] = center1;
 }
