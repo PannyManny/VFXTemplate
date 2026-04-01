@@ -17,9 +17,9 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public final class ShaderEventCommand {
+public final class VFXCommands {
 
-    private ShaderEventCommand() {}
+    private VFXCommands() {}
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(
@@ -37,16 +37,7 @@ public final class ShaderEventCommand {
                                                     BlockPos pos = BlockPosArgumentType.getBlockPos(ctx, "pos");
                                                     ServerCommandSource source = ctx.getSource();
 
-                                                    Collection<ServerPlayerEntity> targets =
-                                                            Optional.ofNullable(source.getEntity())
-                                                                    .filter(ServerPlayerEntity.class::isInstance)
-                                                                    .map(e -> ((ServerPlayerEntity) e).getWorld()
-                                                                            .getPlayers().stream()
-                                                                            .map(p -> (ServerPlayerEntity) p)
-                                                                            .collect(Collectors.toList()))
-                                                                    .orElseGet(() -> source.getServer()
-                                                                            .getPlayerManager()
-                                                                            .getPlayerList());
+                                                    Collection<ServerPlayerEntity> targets = EntityArgumentType.getPlayers(ctx, "targets");
 
                                                     for (ServerPlayerEntity player : targets) {
                                                         ServerPlayNetworking.send(player, new VFXSyncS2CPacket(shaderName, pos));
