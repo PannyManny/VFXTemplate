@@ -14,8 +14,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Collection;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public final class VFXCommands {
 
