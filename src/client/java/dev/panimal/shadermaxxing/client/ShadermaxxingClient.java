@@ -5,6 +5,8 @@ import dev.panimal.shadermaxxing.client.rendering.AbstractEventShader;
 import dev.panimal.shadermaxxing.client.rendering.ShaderRegistry;
 import dev.panimal.shadermaxxing.network.VFXStopS2CPacket;
 import dev.panimal.shadermaxxing.network.VFXSyncS2CPacket;
+import foundry.veil.api.event.VeilRenderLevelStageEvent;
+import foundry.veil.fabric.event.FabricVeilRenderLevelStageEvent;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -79,10 +81,20 @@ public class ShadermaxxingClient implements ClientModInitializer {
             }
         });
 
-        org.ladysnake.satin.api.event.PostWorldRenderCallback.EVENT.register((camera, tickDelta) -> {
-            for (AbstractEventShader shader : List.copyOf(activeShaders)) {
-                shader.onWorldRendered(camera, tickDelta);
-            }
-        });
+        FabricVeilRenderLevelStageEvent.EVENT.register(
+                (stage, levelRenderer, bufferSource, matrixStack,
+                 frustumMatrix, projectionMatrix, renderTick, deltaTracker,
+                 camera, frustum) -> {
+
+                    if (stage != VeilRenderLevelStageEvent.Stage.AFTER_LEVEL) return;
+
+                    // deltaTracker.getTickDelta(true) = partial tick for rendering
+                    // (Yarn 1.21.1 name for what was tickDelta in Satin's callback)
+                    float tickDelta = deltaTracker.getTickDelta(true);
+
+                    for (AbstractEventShader shader : List.copyOf(activeShaders)) {
+                        shader.onWorldRendered(camera, tickDelta);
+                    }
+                });
     }
 }

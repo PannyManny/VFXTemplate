@@ -1,11 +1,11 @@
-#version 330 compatibility
+#version 330
 #define STEPS 1600
 #define VOL_COUNT 2
 #define VOL_1 0
 #define VOL_2 1
 
 uniform sampler2D DiffuseSampler;
-uniform sampler2D DepthSampler;
+uniform sampler2D DiffuseDepthSampler;
 uniform sampler2D noiseTexP18;
 uniform mat4 InverseTransformMatrix;
 uniform mat4 ModelViewMat;
@@ -45,13 +45,13 @@ vec3 localPos[VOL_COUNT];
 void computeSDFs( vec3 p )
 {
     // Position
-    vec3 center1 = p - vec3(0.0, 0.0, 0.0); // x y z coordinates relative to command coords (will be inversed)
+    vec3 center1 = p - vec3(0.0, -3.0, 0.0); // x y z coordinates relative to command coords (will be inversed)
 
     // Movement
 
 
     // Size/Dimensions
-    sdf[VOL_1] = sdBox(center1, vec3(7.0));
+    sdf[VOL_1] = sdBox(center1, vec3(2.0));
 
     localPos[VOL_1] = center1;
 }
@@ -107,7 +107,7 @@ vec4 raymarchVolume( vec3 ro, vec3 rd )
     float ray = 0.0;
     vec4 accum = vec4(0.0);
 
-    float depthSample = texture(DepthSampler, texCoord).r;
+    float depthSample = texture(DiffuseDepthSampler, texCoord).r;
     vec3 hitWorld = worldPos(vec3(texCoord, depthSample)) - BlockPosition;
     float maxDist = length(hitWorld - ro);
 
@@ -160,7 +160,7 @@ vec4 raymarchVolume( vec3 ro, vec3 rd )
 void main()
 {
     vec3 original = texture(DiffuseSampler, texCoord).rgb;
-    float depthSample = texture(DepthSampler, texCoord).r;
+    float depthSample = texture(DiffuseDepthSampler, texCoord).r;
 
     vec3 ro = worldPos(vec3(texCoord, 0.0)) - BlockPosition;
     vec3 hitWorld = worldPos(vec3(texCoord, depthSample)) - BlockPosition;

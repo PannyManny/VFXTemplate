@@ -24,7 +24,7 @@ public class ShaderRegistry {
 
     public static void init() {
         // add more vfx here
-        register("cube",   () -> new AbstractEventShader("cube", Identifier.of(Shadermaxxing.MOD_ID, "shaders/post/cube.json")));
-        register("sphere", () -> new AbstractEventShader("sphere", Identifier.of(Shadermaxxing.MOD_ID, "shaders/post/sphere.json")));
+        register("cube",   () -> new AbstractEventShader("cube", Identifier.of(Shadermaxxing.MOD_ID, "cube")));
+        register("sphere", () -> new AbstractEventShader("sphere", Identifier.of(Shadermaxxing.MOD_ID, "sphere")));
     }
 }

@@ -1,17 +1,9 @@
 {
-  "targets": [
-    "cube"
-  ],
-  "passes": [
+  "stages": [
     {
-      "name": "shadermaxxing:cube",
-      "intarget": "minecraft:main",
-      "outtarget": "cube"
-    },
-    {
-      "name": "blit",
-      "intarget": "cube",
-      "outtarget": "minecraft:main"
+      "type": "veil:blit",
+      "shader": "shadermaxxing:cube",
+      "in": "veil:main"
     }
   ]
 }

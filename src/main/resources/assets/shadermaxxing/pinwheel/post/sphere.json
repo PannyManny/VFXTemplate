@@ -1,17 +1,10 @@
 {
-  "targets": [
-    "sphere"
-  ],
-  "passes": [
+  "stages": [
     {
-      "name": "shadermaxxing:sphere",
-      "intarget": "minecraft:main",
-      "outtarget": "sphere"
-    },
-    {
-      "name": "blit",
-      "intarget": "sphere",
-      "outtarget": "minecraft:main"
+      "type": "veil:blit",
+      "shader": "shadermaxxing:sphere",
+      "in": "veil:main",
+      "out": "veil:post"
     }
   ]
 }
