@@ -3,7 +3,8 @@
     {
       "type": "veil:blit",
       "shader": "shadermaxxing:cube",
-      "in": "veil:main"
+      "in": "minecraft:main",
+      "out": "veil:post"
     }
   ]
 }

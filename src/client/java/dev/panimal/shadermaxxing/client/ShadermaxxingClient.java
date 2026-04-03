@@ -6,6 +6,7 @@ import dev.panimal.shadermaxxing.client.rendering.ShaderRegistry;
 import dev.panimal.shadermaxxing.network.VFXStopS2CPacket;
 import dev.panimal.shadermaxxing.network.VFXSyncS2CPacket;
 import foundry.veil.api.event.VeilRenderLevelStageEvent;
+import foundry.veil.fabric.event.FabricVeilPostProcessingEvent;
 import foundry.veil.fabric.event.FabricVeilRenderLevelStageEvent;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -81,20 +82,12 @@ public class ShadermaxxingClient implements ClientModInitializer {
             }
         });
 
-        FabricVeilRenderLevelStageEvent.EVENT.register(
-                (stage, levelRenderer, bufferSource, matrixStack,
-                 frustumMatrix, projectionMatrix, renderTick, deltaTracker,
-                 camera, frustum) -> {
-
-                    if (stage != VeilRenderLevelStageEvent.Stage.AFTER_LEVEL) return;
-
-                    // deltaTracker.getTickDelta(true) = partial tick for rendering
-                    // (Yarn 1.21.1 name for what was tickDelta in Satin's callback)
-                    float tickDelta = deltaTracker.getTickDelta(true);
-
-                    for (AbstractEventShader shader : List.copyOf(activeShaders)) {
-                        shader.onWorldRendered(camera, tickDelta);
-                    }
-                });
+        FabricVeilPostProcessingEvent.PRE.register((pipelineName, pipeline, context) -> {
+            for (AbstractEventShader shader : List.copyOf(activeShaders)) {
+                if (pipelineName.equals(Identifier.of(Shadermaxxing.MOD_ID, shader.getShaderName()))) {
+                    shader.uploadUniforms(pipeline);
+                }
+            }
+        });
     }
 }

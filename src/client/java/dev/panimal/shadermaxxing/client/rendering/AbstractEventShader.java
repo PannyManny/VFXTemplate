@@ -88,7 +88,7 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
         if (shouldRender()) ticks++;
     }
 
-    public void onWorldRendered(Camera camera, float tickDelta) {
+    public void uploadUniforms(PostPipeline pipeline) {
         if (!shouldRender()) return;
 
         if (noiseTexP18 == null) {
@@ -96,30 +96,19 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
             return;
         }
 
-        PostProcessingManager postManager = VeilRenderSystem.renderer().getPostProcessingManager();
-        if (pipeline == null) {
-            pipeline = postManager.getPipeline(pipelineId);
-            if (pipeline == null) {
-                Shadermaxxing.LOGGER.error("Veil post pipeline not found: {}", pipelineId);
-                return;
-            }
-        }
-
         pipeline.getUniformSafe("BlockPosition")
                 .setVector(blockPosition.x(), blockPosition.y(), blockPosition.z());
 
-        Vector3f camPos = camera.getPos().toVector3f();
+        Vector3f camPos = client.gameRenderer.getCamera().getPos().toVector3f();
         pipeline.getUniformSafe("CameraPosition")
                 .setVector(camPos.x(), camPos.y(), camPos.z());
 
         pipeline.getUniformSafe("iTime")
-                .setFloat((ticks + tickDelta) / 20f);
+                .setFloat(ticks / 20f);
 
         Matrix4f proj = new Matrix4f(RenderSystem.getProjectionMatrix());
         Matrix4f view = new Matrix4f(RenderSystem.getModelViewMatrix());
         pipeline.getUniformSafe("InverseTransformMatrix").setMatrix(proj.mul(view).invert(new Matrix4f()));
         pipeline.getUniformSafe("ModelViewMat").setMatrix(view);
-
-        postManager.runPipeline(pipeline);
     }
 }
