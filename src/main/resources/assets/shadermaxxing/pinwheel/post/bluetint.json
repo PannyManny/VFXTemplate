@@ -1,0 +1,16 @@
+{
+  "stages": [
+    {
+      "type": "veil:blit",
+      "shader": "shadermaxxing:bluetint",
+      "in": "veil:post",
+      "out": "temp"
+    },
+    {
+      "type": "veil:copy",
+      "in": "temp",
+      "out": "veil:post",
+      "color": true
+    }
+  ]
+}

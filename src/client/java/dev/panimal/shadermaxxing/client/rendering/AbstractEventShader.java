@@ -15,9 +15,12 @@ import net.minecraft.world.World;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AbstractEventShader implements ClientTickEvents.EndTick {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger("shadermaxxing-shader");
     private static final int LIFETIME_TICKS = 16000;
 
     private final MinecraftClient client = MinecraftClient.getInstance();
@@ -37,6 +40,7 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     public AbstractEventShader(String shaderName, Identifier pipelineId) {
         this.shaderName = shaderName;
         this.pipelineId = pipelineId;
+        LOGGER.info("[VFX] AbstractEventShader created: name='{}' pipelineId='{}'", shaderName, pipelineId);
     }
 
     public String getShaderName() {
@@ -48,6 +52,7 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     }
 
     public void setNoiseTexture(AbstractTexture texture) {
+        LOGGER.info("[VFX] setNoiseTexture called for '{}', texture is {}", shaderName, texture == null ? "NULL" : "present");
         this.noiseTexP18 = texture;
     }
 
@@ -56,6 +61,7 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     }
 
     public void activate(BlockPos pos, World world) {
+        LOGGER.info("[VFX] activate() called for '{}': pos={} world={}", shaderName, pos, world == null ? "NULL" : world.getRegistryKey().getValue());
         this.blockPosition = pos.toCenterPos().toVector3f();
         this.dimension = world.getRegistryKey();
         this.ticks = 0;
@@ -63,13 +69,15 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     }
 
     private boolean shouldRender() {
-        return blockPosition != null
+        boolean result = blockPosition != null
                 && client.world != null
                 && client.world.getRegistryKey() == dimension;
+        return result;
     }
 
     public void expire() {
         if (expired) return;
+        LOGGER.info("[VFX] expire() called for '{}'", shaderName);
         expired = true;
         blockPosition = null;
         dimension = null;
@@ -82,6 +90,12 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
         if (ticks >= LIFETIME_TICKS
                 || minecraftClient.world == null
                 || minecraftClient.world.getRegistryKey() != dimension) {
+            if (!expired) {
+                LOGGER.warn("[VFX] '{}' expiring in onEndTick: ticks={} worldNull={} wrongDim={}",
+                        shaderName, ticks,
+                        minecraftClient.world == null,
+                        minecraftClient.world != null && minecraftClient.world.getRegistryKey() != dimension);
+            }
             expire();
             return;
         }
@@ -89,26 +103,43 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     }
 
     public void uploadUniforms(PostPipeline pipeline) {
-        if (!shouldRender()) return;
+        LOGGER.info("[VFX] uploadUniforms called for '{}', shouldRender={}", shaderName, shouldRender());
 
-        if (noiseTexP18 == null) {
-            Shadermaxxing.LOGGER.error("NoiseTex is null at render time!");
+        if (!shouldRender()) {
+            LOGGER.warn("[VFX] uploadUniforms skipped for '{}': blockPosition={} world={} dimension={}",
+                    shaderName, blockPosition,
+                    client.world == null ? "NULL" : "present",
+                    dimension);
             return;
         }
 
-        pipeline.getUniformSafe("BlockPosition")
-                .setVector(blockPosition.x(), blockPosition.y(), blockPosition.z());
+        if (noiseTexP18 == null) {
+            LOGGER.error("[VFX] NoiseTex is null at render time for '{}'!", shaderName);
+            return;
+        }
+
+        var bpUniform = pipeline.getUniformSafe("BlockPosition");
+        LOGGER.info("[VFX] BlockPosition uniform: {}", bpUniform == null ? "NULL (not found in shader)" : "found");
+        if (bpUniform != null) bpUniform.setVector(blockPosition.x(), blockPosition.y(), blockPosition.z());
 
         Vector3f camPos = client.gameRenderer.getCamera().getPos().toVector3f();
-        pipeline.getUniformSafe("CameraPosition")
-                .setVector(camPos.x(), camPos.y(), camPos.z());
+        var cpUniform = pipeline.getUniformSafe("CameraPosition");
+        LOGGER.info("[VFX] CameraPosition uniform: {}", cpUniform == null ? "NULL (not found in shader)" : "found");
+        if (cpUniform != null) cpUniform.setVector(camPos.x(), camPos.y(), camPos.z());
 
-        pipeline.getUniformSafe("iTime")
-                .setFloat(ticks / 20f);
+        var timeUniform = pipeline.getUniformSafe("iTime");
+        LOGGER.info("[VFX] iTime uniform: {}", timeUniform == null ? "NULL (not found in shader)" : "found");
+        if (timeUniform != null) timeUniform.setFloat(ticks / 20f);
 
         Matrix4f proj = new Matrix4f(RenderSystem.getProjectionMatrix());
         Matrix4f view = new Matrix4f(RenderSystem.getModelViewMatrix());
-        pipeline.getUniformSafe("InverseTransformMatrix").setMatrix(proj.mul(view).invert(new Matrix4f()));
-        pipeline.getUniformSafe("ModelViewMat").setMatrix(view);
+
+        var invUniform = pipeline.getUniformSafe("InverseTransformMatrix");
+        LOGGER.info("[VFX] InverseTransformMatrix uniform: {}", invUniform == null ? "NULL (not found in shader)" : "found");
+        if (invUniform != null) invUniform.setMatrix(proj.mul(view).invert(new Matrix4f()));
+
+        var mvUniform = pipeline.getUniformSafe("ModelViewMat");
+        LOGGER.info("[VFX] ModelViewMat uniform: {}", mvUniform == null ? "NULL (not found in shader)" : "found");
+        if (mvUniform != null) mvUniform.setMatrix(view);
     }
 }
