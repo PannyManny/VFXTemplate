@@ -5,6 +5,7 @@ import dev.panimal.shadermaxxing.Shadermaxxing;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.post.PostPipeline;
 import foundry.veil.api.client.render.post.PostProcessingManager;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.texture.AbstractTexture;
@@ -17,6 +18,7 @@ import org.joml.Vector3f;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import net.minecraft.resource.ResourceLocation;
 
 public class AbstractEventShader implements ClientTickEvents.EndTick {
 
@@ -27,7 +29,6 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     private final String shaderName;
 
     private final Identifier pipelineId;
-    private PostPipeline pipeline;
 
     private Vector3f blockPosition = null;
     private RegistryKey<World> dimension = null;
@@ -36,6 +37,7 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     private boolean expired = false;
 
     private Runnable onExpire;
+    private PostPipeline pipeline;
 
     public AbstractEventShader(String shaderName, Identifier pipelineId) {
         this.shaderName = shaderName;
@@ -65,7 +67,10 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
         this.blockPosition = pos.toCenterPos().toVector3f();
         this.dimension = world.getRegistryKey();
         this.ticks = 0;
-        this.pipeline = null;
+        this.pipeline = VeilRenderSystem.renderer().getPostProcessingManager().getPipeline(pipelineId);
+        if (this.pipeline != null) {
+            VeilRenderSystem.renderer().getPostProcessingManager().runPipeline(this.pipeline);
+        }
     }
 
     private boolean shouldRender() {
