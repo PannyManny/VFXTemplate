@@ -1,13 +1,9 @@
 package dev.panimal.shadermaxxing.client.rendering;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.panimal.shadermaxxing.Shadermaxxing;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.post.PostPipeline;
-import foundry.veil.api.client.render.post.PostProcessingManager;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
@@ -18,7 +14,8 @@ import org.joml.Vector3f;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.minecraft.resource.ResourceLocation;
+
+import java.util.Set;
 
 public class AbstractEventShader implements ClientTickEvents.EndTick {
 
@@ -38,6 +35,33 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
 
     private Runnable onExpire;
     private PostPipeline pipeline;
+
+
+
+
+
+
+    public void activate() {
+        VeilRenderSystem.renderer().getPostProcessingManager().add(Identifier.of("shadermaxxing", "bluetint"));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public AbstractEventShader(String shaderName, Identifier pipelineId) {
         this.shaderName = shaderName;
