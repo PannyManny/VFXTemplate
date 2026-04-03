@@ -14,5 +14,8 @@ void main() {
     vec3 tinted = original * vec3(0.4, 0.6, 1.5);
 
     // Clamp so we don't go above 1.0 (pure white would blow out otherwise)
-    fragColor = vec4(clamp(tinted, 0.0, 1.0), 1.0);
+    // fragColor = vec4(clamp(tinted, 0.0, 1.0), 1.0);
+
+    // testing for white screen now
+    fragColor = vec4(1.0);
 }

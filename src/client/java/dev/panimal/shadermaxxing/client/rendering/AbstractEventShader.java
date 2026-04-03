@@ -66,7 +66,6 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     public AbstractEventShader(String shaderName, Identifier pipelineId) {
         this.shaderName = shaderName;
         this.pipelineId = pipelineId;
-        LOGGER.info("[VFX] AbstractEventShader created: name='{}' pipelineId='{}'", shaderName, pipelineId);
     }
 
     public String getShaderName() {
@@ -78,7 +77,6 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
     }
 
     public void setNoiseTexture(AbstractTexture texture) {
-        LOGGER.info("[VFX] setNoiseTexture called for '{}', texture is {}", shaderName, texture == null ? "NULL" : "present");
         this.noiseTexP18 = texture;
     }
 
@@ -93,7 +91,7 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
         this.ticks = 0;
         this.pipeline = VeilRenderSystem.renderer().getPostProcessingManager().getPipeline(pipelineId);
         if (this.pipeline != null) {
-            VeilRenderSystem.renderer().getPostProcessingManager().runPipeline(this.pipeline);
+            VeilRenderSystem.renderer().getPostProcessingManager().add(pipelineId);
         }
     }
 
