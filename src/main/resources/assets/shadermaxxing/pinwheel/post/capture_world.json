@@ -1,0 +1,11 @@
+{
+  "renderStage": "AFTER_ENTITIES",
+  "stages": [
+    {
+      "type": "veil:copy",
+      "in": "minecraft:main",
+      "out": "shadermaxxing:scene_capture",
+      "color": true
+    }
+  ]
+}

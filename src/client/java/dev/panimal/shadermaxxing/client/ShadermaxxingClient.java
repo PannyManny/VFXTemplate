@@ -1,11 +1,14 @@
 package dev.panimal.shadermaxxing.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.panimal.shadermaxxing.Shadermaxxing;
 import dev.panimal.shadermaxxing.client.rendering.AbstractEventShader;
 import dev.panimal.shadermaxxing.client.rendering.ShaderRegistry;
 import dev.panimal.shadermaxxing.network.VFXStopS2CPacket;
 import dev.panimal.shadermaxxing.network.VFXSyncS2CPacket;
+import foundry.veil.api.event.VeilRenderLevelStageEvent;
 import foundry.veil.fabric.event.FabricVeilPostProcessingEvent;
+import foundry.veil.fabric.event.FabricVeilRenderLevelStageEvent;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -13,6 +16,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.ResourceTexture;
 import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

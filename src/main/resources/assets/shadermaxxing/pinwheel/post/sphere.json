@@ -1,9 +1,0 @@
-{
-  "stages": [
-    {
-      "type": "veil:blit",
-      "shader": "shadermaxxing:sphere",
-      "in": "minecraft:main"
-    }
-  ]
-}
