@@ -1,6 +1,7 @@
 package dev.panimal.shadermaxxing.client.rendering;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.panimal.shadermaxxing.Shadermaxxing;
 import foundry.veil.api.client.render.VeilRenderSystem;
 import foundry.veil.api.client.render.post.PostPipeline;
 import net.minecraft.client.MinecraftClient;
@@ -33,6 +34,8 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
 
     private Runnable onExpire;
     private PostPipeline pipeline;
+
+    private static final Identifier TEST_ID = Shadermaxxing.path("test");
 
     public AbstractEventShader(String shaderName, Identifier pipelineId) {
         this.shaderName = shaderName;
@@ -93,27 +96,12 @@ public class AbstractEventShader implements ClientTickEvents.EndTick {
 
     public void uploadUniforms(PostPipeline pipeline) {
 
-        if (noiseTexP18 == null) {
-            return;
-        }
+        if (noiseTexP18 == null) { return; }
 
         var bpUniform = pipeline.getUniformSafe("BlockPosition");
         if (bpUniform != null) bpUniform.setVector(blockPosition.x(), blockPosition.y(), blockPosition.z());
 
-        Vector3f camPos = client.gameRenderer.getCamera().getPos().toVector3f();
-        var cpUniform = pipeline.getUniformSafe("CameraPosition");
-        if (cpUniform != null) cpUniform.setVector(camPos.x(), camPos.y(), camPos.z());
-
         var timeUniform = pipeline.getUniformSafe("iTime");
         if (timeUniform != null) timeUniform.setFloat(ticks / 20f);
-
-        Matrix4f proj = new Matrix4f(RenderSystem.getProjectionMatrix());
-        Matrix4f view = new Matrix4f(RenderSystem.getModelViewMatrix());
-
-        var invUniform = pipeline.getUniformSafe("InverseTransformMatrix");
-        if (invUniform != null) invUniform.setMatrix(proj.mul(view).invert(new Matrix4f()));
-
-        var mvUniform = pipeline.getUniformSafe("ModelViewMat");
-        if (mvUniform != null) mvUniform.setMatrix(view);
     }
 }

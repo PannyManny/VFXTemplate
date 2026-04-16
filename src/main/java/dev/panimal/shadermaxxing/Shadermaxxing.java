@@ -6,6 +6,7 @@ import dev.panimal.shadermaxxing.registry.VFXCommandsRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,5 +19,9 @@ public class Shadermaxxing implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(VFXSyncS2CPacket.ID, VFXSyncS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(VFXStopS2CPacket.ID, VFXStopS2CPacket.CODEC);
         CommandRegistrationCallback.EVENT.register(VFXCommandsRegistry::register);
+    }
+
+    public static Identifier path(String path) {
+        return Identifier.of(Shadermaxxing.MOD_ID, path);
     }
 }

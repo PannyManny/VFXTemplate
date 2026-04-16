@@ -32,7 +32,6 @@ public class ShaderRegistry {
     }
 
     public static void init() {
-        register("bluetint", () -> new AbstractEventShader("bluetint", Identifier.of(Shadermaxxing.MOD_ID, "bluetint")));
         register("cube", () -> new AbstractEventShader("cube", Identifier.of(Shadermaxxing.MOD_ID, "cube")));
     }
 }
